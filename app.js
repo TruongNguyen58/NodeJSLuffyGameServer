@@ -3,13 +3,22 @@
  BH Licensed.
  */
 
-var express = require('express'), socketio = require('socket.io'), https = require('https'),fs = require('fs'), app_server = module.exports, game_server = require('./game.server.js'), path = require('path');
+var socketio = require('socket.io'), https = require('https'),fs = require('fs'), app_server = module.exports, game_server = require('./game.server.js'), path = require('path');
 
-var app = express();
+var app = https.createServer(options, handler)
+  , io = require('socket.io').listen(app);
+
+ app.listen(3300);
+
+function handler (req, res) {
+      res.writeHead(200);
+    res.end("welcome to node\n");
+}
 
 var options = {
   key: fs.readFileSync('privatekey.pem', 'utf8'),
   cert: fs.readFileSync('certificate.pem', 'utf8')
+  ca: fs.readFileSync('certrequest.csr')
 }
 
 var allowCrossDomain = function(req, res, next) {
@@ -29,11 +38,6 @@ var allowCrossDomain = function(req, res, next) {
 app.configure(function() {
 	app.use(allowCrossDomain);
 	app.set('port', process.env.PORT || 3000);
-	app.use(express.favicon());
-	app.use(express.logger('dev'));
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
-	app.use(express.static(path.join(__dirname, 'public')));
 });
 
 app.configure('development', function() {
@@ -44,10 +48,10 @@ app.get('/ping', function(req, res) {
 	res.send('pong');
 });
 
-var server = https.createServer(options, app)
-	server.listen(app.get('port'), function () {
-  	console.log('secure server listening on port: ' + app.get('port'))
-})
+// var server = https.createServer(options, app)
+// 	server.listen(app.get('port'), function () {
+//   	console.log('secure server listening on port: ' + app.get('port'))
+// })
 
 // var server = app.listen(app.get('port'), function() {
 // 	console.log("Express server listening on port " + app.get('port'));
