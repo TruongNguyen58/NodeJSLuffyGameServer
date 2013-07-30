@@ -3,68 +3,60 @@
  BH Licensed.
  */
 
-var socketio = require('socket.io'), https = require('https'),fs = require('fs'), app_server = module.exports, game_server = require('./game.server.js'), path = require('path');
+var express = require('express')
+  , socketio = require('socket.io')
+  , http = require('http')
+  , app_server = module.exports
+  , game_server = require('./game.server.js')
+  , path = require('path');
 
-var app = https.createServer(options, handler)
-  , io = require('socket.io').listen(app);
-
- app.listen(3300);
-
-function handler (req, res) {
-      res.writeHead(200);
-    res.end("welcome to node\n");
-}
-
-var options = {
-  key: fs.readFileSync('privatekey.pem', 'utf8'),
-  cert: fs.readFileSync('certificate.pem', 'utf8')
-  // ca: fs.readFileSync('certrequest.csr', 'utf8')
-}
+var app = express();
 
 var allowCrossDomain = function(req, res, next) {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-	res.header('Access-Control-Allow-Headers',
-			'Content-Type, Authorization, Content-Length, X-Requested-With');
+   res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
-	// intercept OPTIONS method
-	if ('OPTIONS' == req.method) {
-		res.send(200);
-	} else {
-		next();
-	}
+    // intercept OPTIONS method
+    if ('OPTIONS' == req.method) {
+      res.send(200);
+    }
+    else {
+      next();
+    }
 };
 
-app.configure(function() {
-	app.use(allowCrossDomain);
-	app.set('port', process.env.PORT || 3000);
+app.configure(function(){
+  app.use(allowCrossDomain);
+  app.set('port', process.env.PORT || 3000);
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  app.use(express.static(path.join(__dirname, 'public')));
 });
 
-// app.configure('development', function() {
-// 	app.use(express.errorHandler());
-// });
-
-// app.get('/ping', function(req, res) {
-// 	res.send('pong');
-// });
-
-// var server = https.createServer(options, app)
-// 	server.listen(app.get('port'), function () {
-//   	console.log('secure server listening on port: ' + app.get('port'))
-// })
-
-// var server = app.listen(app.get('port'), function() {
-// 	console.log("Express server listening on port " + app.get('port'));
-// });
-var io = socketio.listen(server, {
-	origins : '*:*'
+app.configure('development', function(){
+  app.use(express.errorHandler());
 });
+
+app.get('/ping', function(req, res) {
+    res.send('pong');
+});
+
+var server = app.listen(app.get('port'), function(){
+  console.log("Express server listening on port " + app.get('port'));
+});
+var io = socketio.listen(server, {origins: '*:*'});
 io.set('origins', '*:*');
 
-io.configure('development', function() {
-	io.set('transports', [ 'xhr-polling' ]);
-	io.set("polling duration", 15);
-	io.set('close timeout', 15); // 24h time out
+io.configure('development', function(){
+  io.set('transports', ['xhr-polling']);
+  io.set("polling duration", 15); 
+   io.set('close timeout', 15); // 24h time out
 });
 
 io.sockets.on('connection', function(socket) {
