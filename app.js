@@ -3,9 +3,14 @@
  BH Licensed.
  */
 
-var express = require('express'), socketio = require('socket.io'), http = require('http'), app_server = module.exports, game_server = require('./game.server.js'), path = require('path');
+var express = require('express'), socketio = require('socket.io'), https = require('https'),fs = require('fs'), app_server = module.exports, game_server = require('./game.server.js'), path = require('path');
 
 var app = express();
+
+var options = {
+  key: fs.readFileSync('privatekey.pem', 'utf8'),
+  cert: fs.readFileSync('certificate.pem', 'utf8')
+}
 
 var allowCrossDomain = function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
@@ -39,16 +44,21 @@ app.get('/ping', function(req, res) {
 	res.send('pong');
 });
 
-var server = app.listen(app.get('port'), function() {
-	console.log("Express server listening on port " + app.get('port'));
-});
+var server = https.createServer(options, app)
+	server.listen(app.get('port'), function () {
+  	console.log('secure server listening on port: ' + app.get('port'))
+})
+
+// var server = app.listen(app.get('port'), function() {
+// 	console.log("Express server listening on port " + app.get('port'));
+// });
 var io = socketio.listen(server, {
 	origins : '*:*'
 });
 io.set('origins', '*:*');
 
 io.configure('development', function() {
-	//io.set('transports', [ 'xhr-polling' ]);
+	io.set('transports', [ 'xhr-polling' ]);
 	io.set("polling duration", 15);
 	io.set('close timeout', 15); // 24h time out
 });
