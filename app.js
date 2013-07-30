@@ -40,13 +40,13 @@ app.configure(function() {
 	app.set('port', process.env.PORT || 3000);
 });
 
-app.configure('development', function() {
-	app.use(express.errorHandler());
-});
+// app.configure('development', function() {
+// 	app.use(express.errorHandler());
+// });
 
-app.get('/ping', function(req, res) {
-	res.send('pong');
-});
+// app.get('/ping', function(req, res) {
+// 	res.send('pong');
+// });
 
 // var server = https.createServer(options, app)
 // 	server.listen(app.get('port'), function () {
