@@ -18,7 +18,7 @@ function handler (req, res) {
 var options = {
   key: fs.readFileSync('privatekey.pem', 'utf8'),
   cert: fs.readFileSync('certificate.pem', 'utf8')
-  ca: fs.readFileSync('certrequest.csr')
+  ca: fs.readFileSync('certrequest.csr', 'utf8')
 }
 
 var allowCrossDomain = function(req, res, next) {
