@@ -1,4 +1,4 @@
-/*  Copyright (c) 2013 TruongNGUYEN
+/*  Copyright (c) 2013 TruongNGUYEN ^^
     BH Licensed.
  */
 
